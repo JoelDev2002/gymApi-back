@@ -157,3 +157,4 @@ C:\Users\user\Desktop\proyectos\cSharp\examen-final\GymApi\obj\Debug\net10.0\Gym
 C:\Users\user\Desktop\proyectos\cSharp\examen-final\GymApi\obj\Debug\net10.0\GymApi.genruntimeconfig.cache
 C:\Users\user\Desktop\proyectos\cSharp\examen-final\GymApi\obj\Debug\net10.0\ref\GymApi.dll
 C:\Users\user\Desktop\proyectos\cSharp\examen-final\GymApi\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\user\Desktop\proyectos\cSharp\examen-final\GymApi\obj\Debug\net10.0\GymApi.sourcelink.json

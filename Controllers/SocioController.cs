@@ -23,13 +23,48 @@ public class SocioController : ControllerBase
   }
 
   [HttpGet("{id}")]
-  public async Task<IActionResult> ObtenerSocioPorId(long id)
+  public async Task<IActionResult> ObtenerSocioPorId(int id)
   {
-    var socioEncontrado = await _context.Socios.FirstOrDefaultAsync(s=>s.UserId == id);
+    var socioEncontrado = await _context.Socios.Include(s=>s.User).FirstOrDefaultAsync(s=>s.SocioId == id);
 
     if(socioEncontrado is null) return NotFound("socio no se encontro, intente de nuevo");
 
-    return Ok(socioEncontrado);
+    return Ok(new
+    {
+      socioEncontrado.SocioId,
+      socioEncontrado.User.UserName,
+      socioEncontrado.User.Email,
+      socioEncontrado.PesoKg,
+      socioEncontrado.AlturaCm,
+      socioEncontrado.FechaNacimiento,
+      socioEncontrado.Genero,
+      socioEncontrado.IsActive
+    });
+  }
+  [HttpGet("miperfil")]
+  public async Task<IActionResult> ObtenerMiPerfil()
+  {
+    var userId = int.Parse(User.FindFirst("userId")!.Value);
+
+    var socioEncontrado= await _context.Socios.FirstOrDefaultAsync(s=>s.UserId == userId);
+
+    if(socioEncontrado is null)
+    {
+      return NotFound(new
+      {
+        TienePerfil=false,
+        Message="Perfil incompleto , completa tus datos"
+      });
+    }
+    return Ok(new
+    {
+      TienePerfil=true,
+      socioEncontrado.SocioId,
+      socioEncontrado.User.UserName,
+      socioEncontrado.PesoKg,
+      socioEncontrado.AlturaCm,
+      socioEncontrado.FechaNacimiento
+    });
   }
 
   [HttpPost]
@@ -58,6 +93,7 @@ public class SocioController : ControllerBase
       CreatedAt=DateTime.Now,
       IsActive=true,
     };
+
     var hash =new PasswordHasher<User>();
     newUser.PasswordHash=hash.HashPassword(newUser,crearSocioDto.Password);
 
@@ -124,4 +160,30 @@ public class SocioController : ControllerBase
     return NoContent();
   }
 
+  [HttpPost("completarsocio")]
+  public async Task<IActionResult> CompletarSocio([FromBody] CompletarSocioRequest completarSocio)
+  {
+    var userId = int.Parse(User.FindFirst("userId")!.Value);
+
+    var userExiste=await _context.Users.AnyAsync(u=>u.UserId == userId);
+    if(!userExiste) return NotFound("no se encontro este usuario");
+
+    var newSocio = new Socio
+    {
+      UserId             = userId,
+      FechaNacimiento    = completarSocio.FechaNacimiento,
+      Genero             = completarSocio.Genero,
+      AlturaCm           = completarSocio.AlturaCm,
+      PesoKg             = completarSocio.PesoKg,
+      EmergenciaNombre   = completarSocio.EmergenciaNombre,
+      EmergenciaTelefono = completarSocio.EmergenciaTelefono,
+      FechaRegistro      = DateOnly.FromDateTime(DateTime.Now),
+      IsActive           = true
+    };
+
+    await _context.Socios.AddAsync(newSocio);
+    await _context.SaveChangesAsync();
+
+    return Created("creado correctamente", newSocio);
+  }
 }

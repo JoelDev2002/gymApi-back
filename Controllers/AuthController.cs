@@ -88,6 +88,7 @@ public class AuthController : ControllerBase
   private string GenerarToken(User user){
     var claims=new List<Claim>
     {
+      new Claim("userId",user.UserId.ToString()),
       new Claim(ClaimTypes.Name, user.NormalizedUserName),
       new Claim(ClaimTypes.Email, user.NormalizedEmail),
     };

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using GymApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Azure;
 
 namespace GymApi.Controller;
 
@@ -19,18 +20,38 @@ public class UserController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> ObtenerListaUsers()
   {
-    var listaUsers = await _context.Users.ToListAsync();
+    var listaUsers = await _context.Users.Include(u=>u.UserRoles).ThenInclude(uR=>uR.Role)
+    .Select(u => new UserResponse
+    {
+      UserId = u.UserId,
+      UserName = u.UserName,
+      Email = u.Email,
+      PhoneNumber = u.PhoneNumber ?? "",
+      IsActive = u.IsActive,
+      Roles = u.UserRoles.Select(uR=>uR.Role.Name).ToList()
+    }).ToListAsync();
+
     return Ok(listaUsers);
   }
 
   [HttpGet("{id}")]
   public async Task<IActionResult> ObtenerUser(int id)
   {
-    var userEncontrado=await _context.Users.FirstOrDefaultAsync(u=>u.UserId==id);
+    var userEncontrado=await _context.Users.Include(u => u.UserRoles).ThenInclude(uR=>uR.Role).FirstOrDefaultAsync(u=>u.UserId == id);
 
     if (userEncontrado is null) return NotFound("usuario no encontrado");
 
-    return Ok(userEncontrado);
+    var userResponse=new UserResponse
+    {
+      UserId = userEncontrado.UserId,
+      UserName = userEncontrado.UserName,
+      Email = userEncontrado.Email,
+      PhoneNumber = userEncontrado.PhoneNumber ?? "",
+      IsActive = userEncontrado.IsActive,
+      Roles = userEncontrado.UserRoles.Select(uR=>uR.Role.Name).ToList()
+    };
+
+    return Ok(userResponse);
   }
 
   [HttpPost]
@@ -79,6 +100,7 @@ public class UserController : ControllerBase
         newUser.UserId,
         newUser.UserName,
         newUser.Email,
+        newUser.PhoneNumber
     });
   }
 
@@ -105,7 +127,6 @@ public class UserController : ControllerBase
     }
 
     userExiste.UpdatedAt=DateTime.Now;
-    _context.Users.Update(userExiste);
     await _context.SaveChangesAsync();
     return Ok("actualizado");
   }
@@ -121,5 +142,4 @@ public class UserController : ControllerBase
     await _context.SaveChangesAsync();
     return NoContent();
   }
-
 }

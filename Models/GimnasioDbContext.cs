@@ -43,7 +43,7 @@ public partial class GimnasioDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=localhost,1435;Database=GimnasioDB;User Id=sa;Password=Sql_Server_2026!;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Server=localhost,1435;Database=GimnasioDB;User Id=sa;Password=Sql_Server_2026!;Encrypt=False;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -191,7 +191,7 @@ public partial class GimnasioDbContext : DbContext
 
         modelBuilder.Entity<SocioEntrenador>(entity =>
         {
-            entity.HasKey(e => new { e.SocioId, e.EntrenadorId }).HasName("PK__SocioEnt__5B53E0ECB42D3724");
+            entity.HasKey(e => e.SocioEntrenadorId).HasName("SocioEntrenador_PK");
 
             entity.ToTable("SocioEntrenador");
 
