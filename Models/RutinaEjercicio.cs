@@ -5,6 +5,8 @@ namespace GymApi.Models;
 
 public partial class RutinaEjercicio
 {
+    public int RutinaEjercicioId { get; set; }
+
     public int RutinaId { get; set; }
 
     public int EjercicioId { get; set; }

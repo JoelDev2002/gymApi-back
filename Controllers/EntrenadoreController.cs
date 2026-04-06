@@ -31,7 +31,7 @@ public class EntrenadoreController : ControllerBase
     return Ok(entrenadorExiste);
   }
 
-  [HttpPut]
+  [HttpPost]
   public async Task<IActionResult> CrearEntrenador([FromBody] CrearEntrenadoreRequest crearEntrenadore)
   {
     var userNameExiste=await _context.Users.AnyAsync(u=>u.NormalizedUserName == crearEntrenadore.UserName.ToUpper());

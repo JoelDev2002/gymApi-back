@@ -1,8 +1,5 @@
 public class ActualizarRutinaEjercicioRequest
 {
-  public int RutinaId { get; set; }
-
-  public int EjercicioId { get; set; }
   public int Orden { get; set; }
   public int? Series { get; set; }
   public int? Repeticiones { get; set; }

@@ -12,8 +12,8 @@ public class RutinaEjercicioController : ControllerBase
     _context =context;
   }
 
-  [HttpPost("/rutinas/{id}/ejercicio")]
-  public async Task<ActionResult> AgregarEjercicio(int id, CrearRutinaEjercicioRequest crearRutinaEjercicio)
+  [HttpPost("{id}/ejercicio")]
+  public async Task<ActionResult> AgregarRutinaEjercicio(int id, CrearRutinaEjercicioRequest crearRutinaEjercicio)
   {
     var rutinaExiste = await _context.Rutinas.AnyAsync(r => r.RutinaId == id);
     if (!rutinaExiste) return NotFound("La rutina no existe");
@@ -39,26 +39,70 @@ public class RutinaEjercicioController : ControllerBase
     return Ok(newRutinaEjercicio);
   }
 
-  [HttpPut("/rutinas/{id}/ejercicio")]
-  public async Task<ActionResult> AgregarEjercicio(int id, ActualizarRutinaEjercicioRequest request)
+  [HttpPut("{rEId}")]
+  public async Task<ActionResult> ActualizarRutinaEjercicio(int rEId, ActualizarRutinaEjercicioRequest request)
   {
-    var rutinaExiste = await _context.Rutinas.AnyAsync(r => r.RutinaId == id);
-    if (!rutinaExiste) return NotFound("La rutina no existe");
 
-    var ejercicioExiste = await _context.Ejercicios.AnyAsync(e => e.EjercicioId == request.EjercicioId);
-    if (!ejercicioExiste) return BadRequest("El ejercicio no existe");
+    var rutinaEjercicio = await _context.RutinaEjercicios.FirstOrDefaultAsync(re => re.RutinaEjercicioId == rEId);
+    if (rutinaEjercicio == null) return NotFound("El ejercicio en la rutina no existe");
 
 
-    RutinaId = id,
-    EjercicioId = crearRutinaEjercicio.EjercicioId,
-    Orden = crearRutinaEjercicio.Orden,
-    Series = crearRutinaEjercicio.Series,
-    Repeticiones = crearRutinaEjercicio.Repeticiones,
-    PesoObjetivoKg = crearRutinaEjercicio.PesoObjetivoKg,
-    DescansoSegundos = crearRutinaEjercicio.DescansoSegundos,
-    Notas = crearRutinaEjercicio.Notas
+
+    rutinaEjercicio.Orden = request.Orden;
+    rutinaEjercicio.Series = request.Series;
+    rutinaEjercicio.Repeticiones = request.Repeticiones;
+    rutinaEjercicio.PesoObjetivoKg = request.PesoObjetivoKg;
+    rutinaEjercicio.DuracionSegundos = request.DuracionSegundos;
+    rutinaEjercicio.DescansoSegundos = request.DescansoSegundos;
+    rutinaEjercicio.Notas = request.Notas;
+
     await _context.SaveChangesAsync();
 
-    return Ok(newRutinaEjercicio);
+    return Ok("Actualizado");
+  }
+
+  [HttpDelete("{rEId}")]
+  public async Task<ActionResult> EliminarRutinaEjercicio(int rEId)
+  {
+      var rutinaEjercicio = await _context.RutinaEjercicios.FirstOrDefaultAsync(re => re.RutinaEjercicioId == rEId);
+
+      if (rutinaEjercicio is null) return NotFound("El ejercicio en la rutina no existe");
+
+      _context.RutinaEjercicios.Remove(rutinaEjercicio);
+      await _context.SaveChangesAsync();
+
+      return Ok(new { mensaje = "Ejercicio eliminado de la rutina" });
+  }
+
+  [HttpGet("{rutinaId}/ejercicios")]
+  public async Task<ActionResult> ObtenerEjerciciosPorRutina(int rutinaId)
+  {
+      var rutinaExiste = await _context.Rutinas.AnyAsync(r => r.RutinaId == rutinaId);
+      if (!rutinaExiste) return NotFound("La rutina no existe");
+
+      var ejercicios = await _context.RutinaEjercicios
+          .Include(re => re.Ejercicio)
+          .Where(re => re.RutinaId == rutinaId)
+          .OrderBy(re => re.Orden)
+          .Select(re => new
+          {
+              re.RutinaEjercicioId,
+              re.Orden,
+              re.Series,
+              re.Repeticiones,
+              re.PesoObjetivoKg,
+              re.DuracionSegundos,
+              re.DescansoSegundos,
+              re.Notas,
+              Ejercicio = new
+              {
+                  re.Ejercicio.EjercicioId,
+                  re.Ejercicio.Nombre,
+                  re.Ejercicio.GrupoMuscular
+              }
+          })
+          .ToListAsync();
+
+      return Ok(ejercicios);
   }
 }
