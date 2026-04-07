@@ -16,9 +16,19 @@ public class SocioController : ControllerBase
   }
 
   [HttpGet]
-  public async Task<ActionResult<List<Socio>>> ObtenerSocios()
+  public async Task<ActionResult> ObtenerSocios()
   {
-    List<Socio> listaDeSocios = await _context.Socios.ToListAsync();
+    var listaDeSocios = await _context.Socios
+                                              .Include(s=>s.User)
+                                              .Select(s=> new
+                                              {
+                                                SocioId=s.SocioId,
+                                                SocioNombre=s.User !=null?s.User.UserName:"Sin Usuario",
+                                                Genero=s.Genero,
+                                                Altura=s.AlturaCm,
+                                                Peso=s.PesoKg
+                                              })
+                                              .ToListAsync();
     return Ok(listaDeSocios);
   }
 
@@ -38,7 +48,6 @@ public class SocioController : ControllerBase
       socioEncontrado.AlturaCm,
       socioEncontrado.FechaNacimiento,
       socioEncontrado.Genero,
-      socioEncontrado.IsActive
     });
   }
   [HttpGet("miperfil")]

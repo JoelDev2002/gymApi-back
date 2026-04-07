@@ -38,10 +38,10 @@ public class EntrenadoreController : ControllerBase
     if(userNameExiste)return Conflict("ya existe usuario con este username");
 
     var emailExiste=await _context.Users.AnyAsync(u=>u.NormalizedEmail == crearEntrenadore.Email.ToUpper());
-    if(userNameExiste)return Conflict("ya existe usuario con este email");
+    if(emailExiste)return Conflict("ya existe usuario con este email");
 
     var phoneNumberExiste=await _context.Users.AnyAsync(u=>u.PhoneNumber == crearEntrenadore.PhoneNumber);
-    if(userNameExiste)return Conflict("ya existe usuario con este numero");
+    if(phoneNumberExiste)return Conflict("ya existe usuario con este numero");
 
     var roleExiste=await _context.Roles.FirstOrDefaultAsync(r=>r.NormalizedName== "ENTRENADOR" && r.IsActive == true);
     if(roleExiste is null) return NotFound("no se encontro el rol");

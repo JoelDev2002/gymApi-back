@@ -23,12 +23,16 @@ public class AuthController : ControllerBase
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
   {
-    var userExiste =await _context.Users.FirstOrDefaultAsync(user=>user.NormalizedEmail ==loginRequest.Email.ToUpper());
+    var userExiste =await _context.Users
+                                  .Include(u=>u.UserRoles)
+                                  .ThenInclude(uR=>uR.Role)
+                                  .FirstOrDefaultAsync(user=>user.NormalizedEmail ==loginRequest.Email.ToUpper());
+    if (userExiste is null) return Unauthorized("correo o contraseña incorrecta");
 
     var hasher=new PasswordHasher<User>();
-    var result=hasher.VerifyHashedPassword(userExiste!,userExiste!.PasswordHash,loginRequest.Password);
+    var result=hasher.VerifyHashedPassword(userExiste,userExiste.PasswordHash,loginRequest.Password);
 
-    if(userExiste is null || result == PasswordVerificationResult.Failed) return Unauthorized("correo o contraseña incorrecta");
+    if(result == PasswordVerificationResult.Failed) return Unauthorized("correo o contraseña incorrecta");
 
     var tokenGenerado=GenerarToken(userExiste!);
 

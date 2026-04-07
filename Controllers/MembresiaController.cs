@@ -17,7 +17,7 @@ public class MembresiaController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> ObtenerMembresias()
   {
-    var listaMembresias=_context.Membresias.Select(m=> new
+    var listaMembresias=await _context.Membresias.Select(m=> new
     {
       MembresiaId = m.MembresiaId,
       Nombre = m.Nombre,

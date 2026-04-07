@@ -41,7 +41,7 @@ public class SocioEntrenadorController : ControllerBase
   }
 
   [HttpGet("{id}")]
-  public async Task<IActionResult> ObtenerRelaciones(int id)
+  public async Task<IActionResult> ObtenerRelacion(int id)
   {
     var relacionExiste=await _context.SocioEntrenadors
         .Include(sE => sE.Socio).ThenInclude(s => s.User)
@@ -97,11 +97,7 @@ public class SocioEntrenadorController : ControllerBase
     await _context.SocioEntrenadors.AddAsync(newRelacion);
     await _context.SaveChangesAsync();
 
-    return CreatedAtAction("creado correctamente", new
-    {
-      SocioId=newRelacion.SocioId,
-      EntrenadorId=newRelacion.EntrenadorId,
-    });
+    return CreatedAtAction(nameof(ObtenerRelacion), new { id = newRelacion.SocioId}, newRelacion);
   }
 
   [HttpPut ("{id}")]
@@ -132,7 +128,7 @@ public class SocioEntrenadorController : ControllerBase
   }
 
   [HttpDelete ("{id}")]
-  public async Task<IActionResult> ActualizarSocioEntrenador(int id)
+  public async Task<IActionResult> EliminarSocioEntrenador(int id)
   {
     var relacionExiste =await _context.SocioEntrenadors.FirstOrDefaultAsync(sE=>sE.SocioEntrenadorId==id);
     if(relacionExiste is null) return NotFound("relacion no existe");

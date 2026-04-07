@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 [Route("api/[controller]")]
 public class AsistenciaController : ControllerBase
 {
-  private readonly GimnasioDbContext _context;
+    private readonly GimnasioDbContext _context;
 
     public AsistenciaController(GimnasioDbContext context)
     {

@@ -61,7 +61,7 @@ public class RutinaController : ControllerBase
     )
     );
 
-    if (!rutinaExiste) return BadRequest("ya existe una rutina en ese rango de fecha");
+    if (rutinaExiste) return BadRequest("ya existe una rutina en ese rango de fecha y socio con entrenador");
 
     var newRutina =new Rutina
     {

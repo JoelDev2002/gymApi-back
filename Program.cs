@@ -33,6 +33,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+    policy=>policy.WithOrigins("http://localhost:5173")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+});
+
 //para probar con swagger los endpoint 
 // builder.Services.AddSwaggerGen(options =>
 // {
@@ -64,7 +72,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-
+app.UseCors("AllowFrontend");
 app.UseSwagger();
 app.UseSwaggerUI();
 
