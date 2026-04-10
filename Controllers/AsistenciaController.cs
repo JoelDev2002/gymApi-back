@@ -1,4 +1,5 @@
 using GymApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ public class AsistenciaController : ControllerBase
     {
         _context = context;
     }
-
+    
     [HttpPost("entrada")]
     public async Task<IActionResult> RegistrarEntrada([FromBody] string? observaciones)
     {
@@ -98,28 +99,27 @@ public class AsistenciaController : ControllerBase
         return Ok(historial);
     }
 
-    [HttpGet("hoy")]
-    public async Task<IActionResult> ObtenerAsistenciasHoy()
-    {
-        var hoy = DateOnly.FromDateTime(DateTime.Now);
+    [HttpGet("fecha")]
+public async Task<IActionResult> ObtenerAsistenciasPorFecha(DateTime fecha)
+{
+    var asistencias = await _context.Asistencias
+        .Include(a => a.Socio).ThenInclude(s => s.User)
+        .Where(a => a.FechaHoraEntrada.Date == fecha.Date)
+        .OrderByDescending(a => a.FechaHoraEntrada)
+        .Select(a => new
+        {
+            a.AsistenciaId,
+            SocioId = a.Socio.SocioId,
+            SocioNombre = a.Socio.User.UserName,
+            a.FechaHoraEntrada,
+            a.FechaHoraSalida,
+            Estado = a.FechaHoraSalida == null ? "En gimnasio" : "Salió",
+            a.Observaciones
+        })
+        .ToListAsync();
 
-        var asistencias = await _context.Asistencias
-            .Include(a => a.Socio).ThenInclude(s => s.User)
-            .Where(a => DateOnly.FromDateTime(a.FechaHoraEntrada) == hoy)
-            .OrderByDescending(a => a.FechaHoraEntrada)
-            .Select(a => new
-            {
-                a.AsistenciaId,
-                Socio = new { a.Socio.SocioId, a.Socio.User.UserName },
-                a.FechaHoraEntrada,
-                a.FechaHoraSalida,
-                Estado = a.FechaHoraSalida == null ? "En gimnasio" : "Salió",
-                a.Observaciones
-            })
-            .ToListAsync();
-
-        return Ok(asistencias);
-    }
+    return Ok(asistencias);
+}
 
     [HttpPost("admin/entrada/{socioId}")]
     public async Task<IActionResult> RegistrarEntradaAdmin(int socioId, [FromBody] string? observaciones)
@@ -148,6 +148,34 @@ public class AsistenciaController : ControllerBase
         {
             asistencia.AsistenciaId,
             asistencia.FechaHoraEntrada,
+            mensaje = "Entrada registrada por admin"
+        });
+    }
+
+    [HttpPost("admin/salida/{socioId}")]
+    public async Task<IActionResult> RegistrarSalidaAdmin(int socioId, [FromBody] string? observaciones)
+    {
+        var userId = int.Parse(User.FindFirst("userId")!.Value);
+
+        var socioExiste = await _context.Socios.AnyAsync(s => s.SocioId == socioId);
+        if (!socioExiste) return NotFound("Socio no encontrado");
+
+        var asistencia = await _context.Asistencias.FirstOrDefaultAsync(a => a.SocioId == socioId && a.FechaHoraSalida == null);
+
+        if (asistencia == null) return Conflict("El socio no tiene una entrada activa");
+
+
+        asistencia.FechaHoraSalida = DateTime.Now;
+        asistencia.Observaciones = observaciones;
+        asistencia.RegistradaPorUserId = userId;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            asistencia.AsistenciaId,
+            asistencia.FechaHoraEntrada,
+            asistencia.FechaHoraSalida,
             mensaje = "Entrada registrada por admin"
         });
     }

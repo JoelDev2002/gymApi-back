@@ -23,6 +23,7 @@ public class SocioEntrenadorController : ControllerBase
         .Include(sE => sE.Entrenador)
         .Select(sE => new 
         {
+            SocioEntrenadorId  =sE.SocioEntrenadorId,
             SocioId          = sE.SocioId,
             EntrenadorId     = sE.EntrenadorId,
             FechaAsignacion  = sE.FechaAsignacion,
@@ -33,7 +34,9 @@ public class SocioEntrenadorController : ControllerBase
             SocioEmail       = sE.Socio.User.Email,
 
             EntrenadorNombre = sE.Entrenador.User.UserName,
-            EntrenadorEmail  = sE.Entrenador.User.Email
+            EntrenadorEmail  = sE.Entrenador.User.Email,
+
+            IsActive         =sE.Activo
         })
         .ToListAsync();
 
@@ -74,31 +77,37 @@ public class SocioEntrenadorController : ControllerBase
   }
 
   [HttpPost]
-  public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntrenadorRequest crearSocioEntrenador)
-  {
-    var socioExiste=await _context.Socios.AnyAsync(s=>s.SocioId == crearSocioEntrenador.SocioId);
+public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntrenadorRequest crearSocioEntrenador)
+{
+    var socioExiste = await _context.Socios
+        .AnyAsync(s => s.SocioId == crearSocioEntrenador.SocioId && s.IsActive);
+
     if (!socioExiste) return NotFound("Socio no existe");
 
-    var entrenadorExiste=await _context.Entrenadores.AnyAsync(s=>s.EntrenadorId == crearSocioEntrenador.EntrenadorId);
+    var entrenadorExiste = await _context.Entrenadores
+        .AnyAsync(e => e.EntrenadorId == crearSocioEntrenador.EntrenadorId && e.IsActive);
+
     if (!entrenadorExiste) return NotFound("Entrenador no existe");
 
-    var yaAsignado=await _context.SocioEntrenadors.AnyAsync(sE=> sE.SocioId ==crearSocioEntrenador.SocioId && sE.EntrenadorId == crearSocioEntrenador.EntrenadorId);
+    var socioYaTieneEntrenador = await _context.SocioEntrenadors
+        .AnyAsync(se => se.SocioId == crearSocioEntrenador.SocioId && se.Activo);
 
-    if(yaAsignado) return Conflict("ya esta asignado");
+    if (socioYaTieneEntrenador)
+        return Conflict("El socio ya tiene un entrenador asignado");
 
-    var newRelacion=new SocioEntrenador
+    var newRelacion = new SocioEntrenador
     {
-      SocioId=crearSocioEntrenador.SocioId,
-      EntrenadorId=crearSocioEntrenador.EntrenadorId,
-      FechaAsignacion=DateOnly.FromDateTime(DateTime.Now),
-      Activo=true
+        SocioId = crearSocioEntrenador.SocioId,
+        EntrenadorId = crearSocioEntrenador.EntrenadorId,
+        FechaAsignacion = DateOnly.FromDateTime(DateTime.Now),
+        Activo = true
     };
 
     await _context.SocioEntrenadors.AddAsync(newRelacion);
     await _context.SaveChangesAsync();
 
-    return CreatedAtAction(nameof(ObtenerRelacion), new { id = newRelacion.SocioId}, newRelacion);
-  }
+    return CreatedAtAction(nameof(ObtenerRelacion), new { id = newRelacion.SocioEntrenadorId }, newRelacion);
+}
 
   [HttpPut ("{id}")]
   public async Task<IActionResult> ActualizarSocioEntrenador(int id, [FromBody] ActualizarSocioEntrenadorRequest actualizarSocioEntrenadorRequest )
@@ -134,6 +143,7 @@ public class SocioEntrenadorController : ControllerBase
     if(relacionExiste is null) return NotFound("relacion no existe");
 
     relacionExiste.Activo=false;
+    await _context.SaveChangesAsync();
     return NoContent();
   }
 }

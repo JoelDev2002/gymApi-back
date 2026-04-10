@@ -22,11 +22,13 @@ public class SocioController : ControllerBase
                                               .Include(s=>s.User)
                                               .Select(s=> new
                                               {
+                                                UserId=s.UserId,
                                                 SocioId=s.SocioId,
                                                 SocioNombre=s.User !=null?s.User.UserName:"Sin Usuario",
                                                 Genero=s.Genero,
                                                 Altura=s.AlturaCm,
-                                                Peso=s.PesoKg
+                                                Peso=s.PesoKg,
+                                                IsActive=s.IsActive
                                               })
                                               .ToListAsync();
     return Ok(listaDeSocios);
@@ -48,6 +50,8 @@ public class SocioController : ControllerBase
       socioEncontrado.AlturaCm,
       socioEncontrado.FechaNacimiento,
       socioEncontrado.Genero,
+      socioEncontrado.EmergenciaNombre,
+      socioEncontrado.EmergenciaTelefono
     });
   }
   [HttpGet("miperfil")]
@@ -55,7 +59,9 @@ public class SocioController : ControllerBase
   {
     var userId = int.Parse(User.FindFirst("userId")!.Value);
 
-    var socioEncontrado= await _context.Socios.FirstOrDefaultAsync(s=>s.UserId == userId);
+    var socioEncontrado= await _context.Socios
+                                        .Include(s=>s.User)
+                                        .FirstOrDefaultAsync(s=>s.UserId == userId);
 
     if(socioEncontrado is null)
     {
@@ -72,10 +78,13 @@ public class SocioController : ControllerBase
       socioEncontrado.User.UserName,
       socioEncontrado.PesoKg,
       socioEncontrado.AlturaCm,
-      socioEncontrado.FechaNacimiento
+      socioEncontrado.FechaNacimiento,
+      socioEncontrado.Genero,
+      socioEncontrado.EmergenciaNombre,
+      socioEncontrado.EmergenciaTelefono
     });
   }
-
+  
   [HttpPost]
   public async Task<IActionResult> CrearSocio([FromBody] CrearSocioRequest crearSocioDto)
   {
@@ -163,7 +172,7 @@ public class SocioController : ControllerBase
 
     if(socioExiste is null) return NotFound("socio no existe,intente de nuevo");
 
-    socioExiste.IsActive=true;
+    socioExiste.IsActive=false;
     await _context.SaveChangesAsync();
 
     return NoContent();
@@ -176,6 +185,9 @@ public class SocioController : ControllerBase
 
     var userExiste=await _context.Users.AnyAsync(u=>u.UserId == userId);
     if(!userExiste) return NotFound("no se encontro este usuario");
+
+    var socioExiste = await _context.Socios.AnyAsync(s => s.UserId == userId);
+    if (socioExiste) return Conflict("este usuario ya tiene un perfil de socio");
 
     var newSocio = new Socio
     {

@@ -41,34 +41,6 @@ builder.Services.AddCors(options =>
                     .AllowAnyHeader());
 });
 
-//para probar con swagger los endpoint 
-// builder.Services.AddSwaggerGen(options =>
-// {
-//     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-//     {
-//         Name = "Authorization",
-//         Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-//         Scheme = "bearer",
-//         BearerFormat = "JWT",
-//         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-//         Description = "Pon aquí: Bearer {tu_token}"
-//     });
-
-//     options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-//     {
-//         {
-//             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-//             {
-//                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
-//                 {
-//                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-//                     Id = "Bearer"
-//                 }
-//             },
-//             new string[] {}
-//         }
-//     });
-// });
 
 var app = builder.Build();
 
@@ -77,7 +49,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-// app.UseAuthorization();
+app.UseAuthorization();
 app.MapControllers();
 
 

@@ -112,6 +112,7 @@ public class EntrenadoreController : ControllerBase
 
     entrenadoreExiste.IsActive=false;
 
+    await _context.SaveChangesAsync();
     return NoContent();
   }
 }

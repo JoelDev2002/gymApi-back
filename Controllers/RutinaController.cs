@@ -111,4 +111,41 @@ public class RutinaController : ControllerBase
 
     return NoContent();
   }
+
+  [HttpGet("misrutinas")]
+public async Task<IActionResult> ObtenerMisRutinas()
+{
+    var userId = int.Parse(User.FindFirst("userId")!.Value);
+
+    var entrenador = await _context.Entrenadores
+        .FirstOrDefaultAsync(e => e.UserId == userId && e.IsActive);
+
+    if (entrenador is null)
+        return NotFound("entrenador no encontrado");
+
+    var rutinas = await _context.Rutinas
+        .Where(r => r.EntrenadorId == entrenador.EntrenadorId && r.Activa)
+        .Select(r => new
+        {
+            RutinaId = r.RutinaId,
+            Socio = new
+            {
+                SocioId = r.Socio.SocioId,
+                Nombre = r.Socio.User.UserName
+            },
+            Entrenador = new
+            {
+                EntrenadorId = r.Entrenador!.EntrenadorId,
+                Nombre = r.Entrenador.User.UserName
+            },
+            Nombre = r.Nombre,
+            Objetivo = r.Objetivo,
+            FechaInicio = r.FechaInicio,
+            FechaFin = r.FechaFin,
+            Activa = r.Activa
+        })
+        .ToListAsync();
+
+    return Ok(rutinas);
+}
 }
