@@ -3,6 +3,7 @@ using GymApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Azure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GymApi.Controller;
 
@@ -17,6 +18,7 @@ public class UserController : ControllerBase
     _context=context;
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpGet]
   public async Task<IActionResult> ObtenerListaUsers()
   {
@@ -34,6 +36,7 @@ public class UserController : ControllerBase
     return Ok(listaUsers);
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR,SOCIO")]
   [HttpGet("{id}")]
   public async Task<IActionResult> ObtenerUser(int id)
   {
@@ -54,6 +57,7 @@ public class UserController : ControllerBase
     return Ok(userResponse);
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPost]
   public async Task<IActionResult> CrearUser([FromBody] CrearUserRequest crearUserRequest)
   {
@@ -104,6 +108,7 @@ public class UserController : ControllerBase
     });
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPut("{id}")]
   public async Task<IActionResult> ActualizarUser(int id ,[FromBody] ActualizarUserRequest actualizarUserRequest)
   {
@@ -131,6 +136,7 @@ public class UserController : ControllerBase
     return Ok("actualizado");
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> eliminarUser(int id)
   {

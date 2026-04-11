@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using GymApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GymApi.Controller;
 [ApiController]
@@ -15,6 +16,7 @@ public class RutinaController : ControllerBase
     _context=context;
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpGet]
   public async Task<ActionResult> ObtenerRutinas()
   {
@@ -41,7 +43,7 @@ public class RutinaController : ControllerBase
     return Ok(listaRutinas);
   }
 
-
+  [Authorize(Roles ="ADMIN")]
   [HttpPost]
   public async Task<IActionResult> CrearRutina([FromBody] CrearRutinaRequest crearRutina)
   {
@@ -92,6 +94,7 @@ public class RutinaController : ControllerBase
     });
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpPut("{id}")]
   public async Task<IActionResult> EditarRutina(int id , [FromBody] EditarSocioRequest editarSocioRequest)
   {
@@ -99,6 +102,7 @@ public class RutinaController : ControllerBase
     return null!;
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> EliminarRutina(int id )
   {
@@ -112,40 +116,79 @@ public class RutinaController : ControllerBase
     return NoContent();
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpGet("misrutinas")]
-public async Task<IActionResult> ObtenerMisRutinas()
-{
-    var userId = int.Parse(User.FindFirst("userId")!.Value);
+  public async Task<IActionResult> ObtenerMisRutinasEntrenador()
+  {
+      var userId = int.Parse(User.FindFirst("userId")!.Value);
 
-    var entrenador = await _context.Entrenadores
-        .FirstOrDefaultAsync(e => e.UserId == userId && e.IsActive);
+      var entrenador = await _context.Entrenadores
+          .FirstOrDefaultAsync(e => e.UserId == userId && e.IsActive);
 
-    if (entrenador is null)
-        return NotFound("entrenador no encontrado");
+      if (entrenador is null)
+          return NotFound("entrenador no encontrado");
 
-    var rutinas = await _context.Rutinas
-        .Where(r => r.EntrenadorId == entrenador.EntrenadorId && r.Activa)
-        .Select(r => new
-        {
-            RutinaId = r.RutinaId,
-            Socio = new
-            {
-                SocioId = r.Socio.SocioId,
-                Nombre = r.Socio.User.UserName
-            },
-            Entrenador = new
-            {
-                EntrenadorId = r.Entrenador!.EntrenadorId,
-                Nombre = r.Entrenador.User.UserName
-            },
-            Nombre = r.Nombre,
-            Objetivo = r.Objetivo,
-            FechaInicio = r.FechaInicio,
-            FechaFin = r.FechaFin,
-            Activa = r.Activa
-        })
-        .ToListAsync();
+      var rutinas = await _context.Rutinas
+          .Where(r => r.EntrenadorId == entrenador.EntrenadorId && r.Activa)
+          .Select(r => new
+          {
+              RutinaId = r.RutinaId,
+              Socio = new
+              {
+                  SocioId = r.Socio.SocioId,
+                  Nombre = r.Socio.User.UserName
+              },
+              Entrenador = new
+              {
+                  EntrenadorId = r.Entrenador!.EntrenadorId,
+                  Nombre = r.Entrenador.User.UserName
+              },
+              Nombre = r.Nombre,
+              Objetivo = r.Objetivo,
+              FechaInicio = r.FechaInicio,
+              FechaFin = r.FechaFin,
+              Activa = r.Activa
+          })
+          .ToListAsync();
 
-    return Ok(rutinas);
-}
-}
+      return Ok(rutinas);
+  }
+
+  [Authorize(Roles ="ADMIN,SOCIO")]
+  [HttpGet("socio/misrutinas")]
+  public async Task<IActionResult> ObtenerMisRutinasSocio()
+  {
+      var userId = int.Parse(User.FindFirst("userId")!.Value);
+
+      var socio = await _context.Socios
+          .FirstOrDefaultAsync(s => s.UserId == userId && s.IsActive);
+
+      if (socio is null)
+          return NotFound("socio no encontrado");
+
+      var rutinas = await _context.Rutinas
+          .Where(r => r.SocioId == socio.SocioId && r.Activa)
+          .Select(r => new
+          {
+              RutinaId = r.RutinaId,
+              Socio = new
+              {
+                  SocioId = r.Socio.SocioId,
+                  Nombre = r.Socio.User.UserName
+              },
+              Entrenador = new
+              {
+                  EntrenadorId = r.Entrenador!.EntrenadorId,
+                  Nombre = r.Entrenador.User.UserName
+              },
+              Nombre = r.Nombre,
+              Objetivo = r.Objetivo,
+              FechaInicio = r.FechaInicio,
+              FechaFin = r.FechaFin,
+              Activa = r.Activa
+          })
+          .ToListAsync();
+
+      return Ok(rutinas);
+  }
+  }

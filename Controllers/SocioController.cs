@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using GymApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GymApi.Controller;
 [ApiController]
@@ -15,6 +16,7 @@ public class SocioController : ControllerBase
     _context=context;
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpGet]
   public async Task<ActionResult> ObtenerSocios()
   {
@@ -34,6 +36,7 @@ public class SocioController : ControllerBase
     return Ok(listaDeSocios);
   }
 
+  [Authorize(Roles ="ADMIN,SOCIO")]
   [HttpGet("{id}")]
   public async Task<IActionResult> ObtenerSocioPorId(int id)
   {
@@ -54,6 +57,8 @@ public class SocioController : ControllerBase
       socioEncontrado.EmergenciaTelefono
     });
   }
+  
+  [Authorize(Roles ="SOCIO")]
   [HttpGet("miperfil")]
   public async Task<IActionResult> ObtenerMiPerfil()
   {
@@ -85,6 +90,7 @@ public class SocioController : ControllerBase
     });
   }
   
+  [Authorize(Roles ="ADMIN")]
   [HttpPost]
   public async Task<IActionResult> CrearSocio([FromBody] CrearSocioRequest crearSocioDto)
   {
@@ -146,6 +152,7 @@ public class SocioController : ControllerBase
     });
   }
 
+  [Authorize(Roles ="ADMIN,SOCIO")]
   [HttpPut("{id}")]
   public async Task<IActionResult> EditarSocio(int id , [FromBody] EditarSocioRequest editarSocioRequest)
   {
@@ -165,6 +172,7 @@ public class SocioController : ControllerBase
     return Ok("Actualizado correctamente");
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> EliminarSocio(int id )
   {
@@ -178,6 +186,7 @@ public class SocioController : ControllerBase
     return NoContent();
   }
 
+  [Authorize(Roles ="ADMIN,SOCIO")]
   [HttpPost("completarsocio")]
   public async Task<IActionResult> CompletarSocio([FromBody] CompletarSocioRequest completarSocio)
   {

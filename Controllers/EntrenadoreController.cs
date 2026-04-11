@@ -1,4 +1,5 @@
 using GymApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ public class EntrenadoreController : ControllerBase
   {
     _context=context;
   }
-
+  [Authorize(Roles ="ADMIN")]
   [HttpGet]
   public async Task<IActionResult> ObtenerEntrenadores()
   {
@@ -22,6 +23,7 @@ public class EntrenadoreController : ControllerBase
     return Ok(listaEntrenadores);
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpGet("{id}")]
   public async Task<IActionResult> ObtenerEntrenadorPorId(int id)
   {
@@ -31,6 +33,7 @@ public class EntrenadoreController : ControllerBase
     return Ok(entrenadorExiste);
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPost]
   public async Task<IActionResult> CrearEntrenador([FromBody] CrearEntrenadoreRequest crearEntrenadore)
   {
@@ -85,6 +88,7 @@ public class EntrenadoreController : ControllerBase
     });
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPut("{id}")]
   public async Task<IActionResult> ActualizarEntrenador(int id, [FromBody]ActualizarEntrenadoreRequest actualizarEntrenadore)
   {
@@ -104,6 +108,7 @@ public class EntrenadoreController : ControllerBase
     });
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> EliminarEntrenador(int id)
   {

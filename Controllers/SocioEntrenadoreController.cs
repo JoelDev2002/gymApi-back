@@ -1,4 +1,5 @@
 using GymApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,7 @@ public class SocioEntrenadorController : ControllerBase
   }
 
 
-
+  [Authorize(Roles ="ADMIN")]
   [HttpGet]
   public async Task<IActionResult> ObtenerRelaciones()
   {
@@ -43,6 +44,7 @@ public class SocioEntrenadorController : ControllerBase
         return Ok(listaRelaciones);
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpGet("{id}")]
   public async Task<IActionResult> ObtenerRelacion(int id)
   {
@@ -76,6 +78,7 @@ public class SocioEntrenadorController : ControllerBase
     return Ok(detalle);
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPost]
 public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntrenadorRequest crearSocioEntrenador)
 {
@@ -109,6 +112,7 @@ public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntre
     return CreatedAtAction(nameof(ObtenerRelacion), new { id = newRelacion.SocioEntrenadorId }, newRelacion);
 }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPut ("{id}")]
   public async Task<IActionResult> ActualizarSocioEntrenador(int id, [FromBody] ActualizarSocioEntrenadorRequest actualizarSocioEntrenadorRequest )
   {
@@ -136,6 +140,7 @@ public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntre
     });
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpDelete ("{id}")]
   public async Task<IActionResult> EliminarSocioEntrenador(int id)
   {

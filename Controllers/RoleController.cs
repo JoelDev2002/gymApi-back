@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using GymApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GymApi.Controller;
 
@@ -15,6 +16,7 @@ public class RoleController : ControllerBase
     _context=context;
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpGet]
   public async Task<IActionResult> ObtenerListaRoles()
   {
@@ -22,6 +24,7 @@ public class RoleController : ControllerBase
     return Ok(listaRoles);
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpGet("{id}")]
   public async Task<IActionResult> ObtenerRole(int id)
   {
@@ -31,6 +34,7 @@ public class RoleController : ControllerBase
     return Ok(role);
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPost]
   public async Task<IActionResult> CrearRole([FromBody] CrearRoleRequest request)
   {
@@ -50,6 +54,7 @@ public class RoleController : ControllerBase
     return Created("creado Correctamente",newRole);
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPut]
   public async Task<IActionResult> ActualizarRole(int id,[FromBody] CrearRoleRequest request)
   {
@@ -68,6 +73,7 @@ public class RoleController : ControllerBase
     return Ok("actualizado correctamente");
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> EliminarRole(int id)
   {

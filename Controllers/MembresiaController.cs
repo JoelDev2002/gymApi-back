@@ -1,4 +1,5 @@
 using GymApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,7 @@ public class MembresiaController : ControllerBase
     _context= context;
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpGet]
   public async Task<IActionResult> ObtenerMembresias()
   {
@@ -32,6 +34,7 @@ public class MembresiaController : ControllerBase
     return Ok(listaMembresias);
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPost]
   public async Task<IActionResult> CrearMembresia([FromBody] CrearMembresiaRequest crearMembresia)
   {
@@ -65,6 +68,7 @@ public class MembresiaController : ControllerBase
     });
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpPut("{id}")]
   public async Task<IActionResult> ActualizarMembresia (int id ,[FromBody] ActualizarMembresiaRequest actualizarMembresia)
   {
@@ -94,6 +98,7 @@ public class MembresiaController : ControllerBase
     });
   }
 
+  [Authorize(Roles ="ADMIN")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> EliminarMembresia (int id)
   {

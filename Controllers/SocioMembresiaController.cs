@@ -1,4 +1,5 @@
 using GymApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,8 +16,9 @@ public class SocioMembresiaController : ControllerBase
     _context= context;
   }
 
-  [HttpGet]
-  public async Task<IActionResult> ListaDeSocioConMembresia()
+    [Authorize(Roles ="ADMIN")]
+    [HttpGet]
+    public async Task<IActionResult> ListaDeSocioConMembresia()
   {
     var listaDeSocioConMembresia= await _context.SocioMembresia
                                                 .Include(sM=>sM.Socio)
@@ -45,6 +47,7 @@ public class SocioMembresiaController : ControllerBase
     return Ok(listaDeSocioConMembresia);
   }
 
+    [Authorize(Roles ="ADMIN")]
     [HttpGet("{id}")]
     public async Task<IActionResult> ObtenerSocioMembresia(int id)
     {
@@ -71,6 +74,7 @@ public class SocioMembresiaController : ControllerBase
         });
     }
 
+    [Authorize(Roles ="ADMIN")]
     [HttpPost]
     public async Task<IActionResult> AsignarMembresia([FromBody] CrearSocioMembresiaRequest request)
     {
@@ -115,6 +119,7 @@ public class SocioMembresiaController : ControllerBase
             });
     }
 
+    [Authorize(Roles ="ADMIN")]
     [HttpPatch("{id}/cancelar")]
     public async Task<IActionResult> CancelarMembresia(int id)
     {

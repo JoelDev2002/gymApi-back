@@ -14,6 +14,7 @@ public class AsistenciaController : ControllerBase
         _context = context;
     }
     
+    [Authorize(Roles ="SOCIO")]
     [HttpPost("entrada")]
     public async Task<IActionResult> RegistrarEntrada([FromBody] string? observaciones)
     {
@@ -24,8 +25,11 @@ public class AsistenciaController : ControllerBase
 
         // Verificar que no tenga una entrada abierta (sin salida)
         var entradaAbierta = await _context.Asistencias
-            .AnyAsync(a => a.SocioId == socio.SocioId && a.FechaHoraSalida == null);
-        if (entradaAbierta) return Conflict("Ya tenés una entrada registrada sin salida");
+            .AnyAsync(a =>
+                            a.SocioId == socio.SocioId 
+                            && a.FechaHoraEntrada != null
+                            && a.FechaHoraSalida == null);
+        if (entradaAbierta) return Conflict("Ya tienes una entrada registrada sin salida");
 
         var asistencia = new Asistencia
         {
@@ -46,6 +50,7 @@ public class AsistenciaController : ControllerBase
         });
     }
 
+    [Authorize(Roles ="SOCIO")]
     [HttpPut("salida")]
     public async Task<IActionResult> RegistrarSalida()
     {
@@ -72,6 +77,7 @@ public class AsistenciaController : ControllerBase
         });
     }
 
+    [Authorize(Roles ="SOCIO")]
     // El socio ve su propio historial
     [HttpGet("mihistorial")]
     public async Task<IActionResult> ObtenerMiHistorial()
@@ -90,15 +96,13 @@ public class AsistenciaController : ControllerBase
                 a.FechaHoraEntrada,
                 a.FechaHoraSalida,
                 a.Observaciones,
-                Duracion = a.FechaHoraSalida == null
-                    ? "En gimnasio"
-                    : $"{(a.FechaHoraSalida.Value - a.FechaHoraEntrada).TotalMinutes:F0} minutos"
             })
             .ToListAsync();
 
         return Ok(historial);
     }
 
+    [Authorize(Roles ="ADMIN")]
     [HttpGet("fecha")]
 public async Task<IActionResult> ObtenerAsistenciasPorFecha(DateTime fecha)
 {
@@ -121,6 +125,7 @@ public async Task<IActionResult> ObtenerAsistenciasPorFecha(DateTime fecha)
     return Ok(asistencias);
 }
 
+    [Authorize(Roles ="ADMIN")]
     [HttpPost("admin/entrada/{socioId}")]
     public async Task<IActionResult> RegistrarEntradaAdmin(int socioId, [FromBody] string? observaciones)
     {
@@ -152,6 +157,7 @@ public async Task<IActionResult> ObtenerAsistenciasPorFecha(DateTime fecha)
         });
     }
 
+    [Authorize(Roles ="ADMIN")]
     [HttpPost("admin/salida/{socioId}")]
     public async Task<IActionResult> RegistrarSalidaAdmin(int socioId, [FromBody] string? observaciones)
     {

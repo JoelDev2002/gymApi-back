@@ -1,4 +1,5 @@
 using GymApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,7 @@ public class RutinaEjercicioController : ControllerBase
     _context =context;
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpPost("{id}/ejercicio")]
   public async Task<ActionResult> AgregarRutinaEjercicio(int id, CrearRutinaEjercicioRequest crearRutinaEjercicio)
   {
@@ -39,6 +41,7 @@ public class RutinaEjercicioController : ControllerBase
     return Ok(newRutinaEjercicio);
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpPut("{rEId}")]
   public async Task<ActionResult> ActualizarRutinaEjercicio(int rEId, ActualizarRutinaEjercicioRequest request)
   {
@@ -61,6 +64,7 @@ public class RutinaEjercicioController : ControllerBase
     return Ok("Actualizado");
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpDelete("{rEId}")]
   public async Task<ActionResult> EliminarRutinaEjercicio(int rEId)
   {
@@ -74,6 +78,7 @@ public class RutinaEjercicioController : ControllerBase
       return Ok(new { mensaje = "Ejercicio eliminado de la rutina" });
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR,SOCIO")]
   [HttpGet("{rutinaId}/ejercicios")]
   public async Task<ActionResult> ObtenerEjerciciosPorRutina(int rutinaId)
   {
