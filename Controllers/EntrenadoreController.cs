@@ -14,7 +14,7 @@ public class EntrenadoreController : ControllerBase
   {
     _context=context;
   }
-  [Authorize(Roles ="ADMIN")]
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpGet]
   public async Task<IActionResult> ObtenerEntrenadores()
   {

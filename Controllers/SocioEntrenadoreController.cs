@@ -15,7 +15,7 @@ public class SocioEntrenadorController : ControllerBase
   }
 
 
-  [Authorize(Roles ="ADMIN")]
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpGet]
   public async Task<IActionResult> ObtenerRelaciones()
   {
@@ -43,6 +43,45 @@ public class SocioEntrenadorController : ControllerBase
 
         return Ok(listaRelaciones);
   }
+
+
+[Authorize(Roles ="ADMIN,ENTRENADOR")]
+[HttpGet("entrenador")]
+public async Task<IActionResult> ObtenerRelacionesEntrenador()
+{
+    var userId = int.Parse(User.FindFirst("userId")!.Value);
+
+    // Buscar el entrenador por userId
+    var entrenador = await _context.Entrenadores
+        .FirstOrDefaultAsync(e => e.UserId == userId);
+
+    if (entrenador is null)
+        return NotFound("Entrenador no encontrado");
+
+    var listaRelaciones = await _context.SocioEntrenadors
+        .Where(sE => sE.EntrenadorId == entrenador.EntrenadorId) 
+        .Include(sE => sE.Socio)
+        .Include(sE => sE.Entrenador)
+        .Select(sE => new 
+        {
+            SocioEntrenadorId = sE.SocioEntrenadorId,
+            SocioId = sE.SocioId,
+            EntrenadorId = sE.EntrenadorId,
+            FechaAsignacion = sE.FechaAsignacion,
+            Activo = sE.Activo,
+
+            SocioNombre = sE.Socio.User.UserName,
+            SocioEmail = sE.Socio.User.Email,
+
+            EntrenadorNombre = sE.Entrenador.User.UserName,
+            EntrenadorEmail = sE.Entrenador.User.Email,
+
+            IsActive = sE.Activo
+        })
+        .ToListAsync();
+
+    return Ok(listaRelaciones);
+}
 
   [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpGet("{id}")]

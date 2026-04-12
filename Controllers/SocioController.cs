@@ -16,7 +16,7 @@ public class SocioController : ControllerBase
     _context=context;
   }
 
-  [Authorize(Roles ="ADMIN")]
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpGet]
   public async Task<ActionResult> ObtenerSocios()
   {

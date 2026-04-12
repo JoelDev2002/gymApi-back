@@ -43,6 +43,49 @@ public class RutinaController : ControllerBase
     return Ok(listaRutinas);
   }
 
+  [Authorize(Roles ="ADMIN,ENTRENADOR")]
+[HttpGet("entrenador")]
+public async Task<ActionResult> ObtenerRutinasEntrenador()
+{
+    var query = _context.Rutinas.AsQueryable();
+
+    if (User.IsInRole("ENTRENADOR"))
+    {
+        var userId = int.Parse(User.FindFirst("userId")!.Value);
+
+        var entrenador = await _context.Entrenadores
+            .FirstOrDefaultAsync(e => e.UserId == userId);
+
+        if (entrenador is null)
+            return NotFound("Entrenador no encontrado");
+
+        query = query.Where(r => r.EntrenadorId == entrenador.EntrenadorId);
+    }
+
+    var listaRutinas = await query
+        .Select(r => new
+        {
+            RutinaId = r.RutinaId,
+            Socio = new
+            {
+                SocioId = r.Socio.SocioId,
+                Nombre = r.Socio.User.UserName
+            },
+            Entrenador = new
+            {
+                EntrenadorId = r.Entrenador!.EntrenadorId,
+                Nombre = r.Entrenador.User.UserName
+            },
+            Nombre = r.Nombre,
+            FechaInicio = r.FechaInicio,
+            FechaFin = r.FechaFin,
+            Activa = r.Activa,
+        })
+        .ToListAsync();
+
+    return Ok(listaRutinas);
+}
+
   [Authorize(Roles ="ADMIN")]
   [HttpPost]
   public async Task<IActionResult> CrearRutina([FromBody] CrearRutinaRequest crearRutina)
