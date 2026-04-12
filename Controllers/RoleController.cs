@@ -55,7 +55,7 @@ public class RoleController : ControllerBase
   }
 
   [Authorize(Roles ="ADMIN")]
-  [HttpPut]
+  [HttpPut("{id}")]
   public async Task<IActionResult> ActualizarRole(int id,[FromBody] CrearRoleRequest request)
   {
     var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleId == id);

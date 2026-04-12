@@ -104,7 +104,7 @@ public class AsistenciaController : ControllerBase
 
     [Authorize(Roles ="ADMIN")]
     [HttpGet("fecha")]
-public async Task<IActionResult> ObtenerAsistenciasPorFecha(DateTime fecha)
+    public async Task<IActionResult> ObtenerAsistenciasPorFecha(DateTime fecha)
 {
     var asistencias = await _context.Asistencias
         .Include(a => a.Socio).ThenInclude(s => s.User)
