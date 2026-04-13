@@ -137,13 +137,60 @@ public async Task<ActionResult> ObtenerRutinasEntrenador()
     });
   }
 
-  [Authorize(Roles ="ADMIN,ENTRENADOR")]
+  [Authorize(Roles = "ADMIN,ENTRENADOR")]
   [HttpPut("{id}")]
-  public async Task<IActionResult> EditarRutina(int id , [FromBody] EditarSocioRequest editarSocioRequest)
-  {
+public async Task<IActionResult> EditarRutina(int id, [FromBody] ActualizarRutinaRequest request)
+{
+    var rutina = await _context.Rutinas.FirstOrDefaultAsync(r => r.RutinaId == id);
+
+    if (rutina is null)
+        return NotFound("rutina no existe");
+
     
-    return null!;
-  }
+    var socioExiste = await _context.Socios.AnyAsync(s => s.SocioId == request.SocioId);
+    if (!socioExiste) return NotFound("socio no existe");
+
+    var entrenadorExiste = await _context.Entrenadores.AnyAsync(e => e.EntrenadorId == request.EntrenadorId);
+    if (!entrenadorExiste) return NotFound("entrenador no existe");
+
+    // validar fechas
+    if (request.FechaInicio > request.FechaFin)
+        return BadRequest("fecha inicio no puede ser mayor que fecha fin");
+
+    var choque = await _context.Rutinas.AnyAsync(r =>
+        r.RutinaId != id &&
+        r.SocioId == request.SocioId &&
+        r.EntrenadorId == request.EntrenadorId &&
+        r.Activa &&
+        request.FechaInicio <= r.FechaFin &&
+        request.FechaFin >= r.FechaInicio
+    );
+
+    if (choque)
+        return BadRequest("el socio ya tiene una rutina activa con este entrenador en ese rango de fechas");
+
+    // actualizar
+    rutina.SocioId = request.SocioId;
+    rutina.EntrenadorId = request.EntrenadorId;
+    rutina.Nombre = request.Nombre;
+    rutina.Objetivo = request.Objetivo;
+    rutina.FechaInicio = request.FechaInicio;
+    rutina.FechaFin = request.FechaFin;
+
+    await _context.SaveChangesAsync();
+
+    return Ok(new
+    {
+        rutina.RutinaId,
+        rutina.SocioId,
+        rutina.EntrenadorId,
+        rutina.Nombre,
+        rutina.Objetivo,
+        rutina.FechaInicio,
+        rutina.FechaFin,
+        rutina.Activa
+    });
+}
 
   [Authorize(Roles ="ADMIN,ENTRENADOR")]
   [HttpDelete("{id}")]
