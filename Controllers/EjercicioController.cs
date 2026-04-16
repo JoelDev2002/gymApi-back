@@ -64,7 +64,7 @@ public class EjercicioController : ControllerBase
     await _context.Ejercicios.AddAsync(newEjercicio);
     await _context.SaveChangesAsync();
 
-    return Created("creado Correctamente",new
+    return Created("",new
     {
       EjercicioId=newEjercicio.EjercicioId,
       Nombre=newEjercicio.Nombre,

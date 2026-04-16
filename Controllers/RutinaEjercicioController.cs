@@ -38,7 +38,7 @@ public class RutinaEjercicioController : ControllerBase
     await _context.RutinaEjercicios.AddAsync(newRutinaEjercicio);
     await _context.SaveChangesAsync();
 
-    return Ok(newRutinaEjercicio);
+    return Created("",newRutinaEjercicio);
   }
 
   [Authorize(Roles ="ADMIN,ENTRENADOR")]

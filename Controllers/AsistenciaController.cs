@@ -42,7 +42,7 @@ public class AsistenciaController : ControllerBase
         await _context.Asistencias.AddAsync(asistencia);
         await _context.SaveChangesAsync();
 
-        return Ok(new
+        return Created("",new
         {
             asistencia.AsistenciaId,
             asistencia.FechaHoraEntrada,
@@ -149,7 +149,7 @@ public class AsistenciaController : ControllerBase
         await _context.Asistencias.AddAsync(asistencia);
         await _context.SaveChangesAsync();
 
-        return Ok(new
+        return Created("",new
         {
             asistencia.AsistenciaId,
             asistencia.FechaHoraEntrada,
@@ -158,7 +158,7 @@ public class AsistenciaController : ControllerBase
     }
 
     [Authorize(Roles ="ADMIN")]
-    [HttpPost("admin/salida/{socioId}")]
+    [HttpPut("admin/salida/{socioId}")]
     public async Task<IActionResult> RegistrarSalidaAdmin(int socioId, [FromBody] string? observaciones)
     {
         var userId = int.Parse(User.FindFirst("userId")!.Value);

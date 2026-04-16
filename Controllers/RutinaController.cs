@@ -123,7 +123,7 @@ public async Task<ActionResult> ObtenerRutinasEntrenador()
     await _context.Rutinas.AddAsync(newRutina);
     await _context.SaveChangesAsync();
 
-    return Created("rutina creada",new
+    return Created("",new
     {
       RutinaId=newRutina.RutinaId,
       SocioId=newRutina.SocioId,

@@ -142,7 +142,7 @@ public class SocioController : ControllerBase
     await _context.Users.AddAsync(newUser);
     await _context.SaveChangesAsync(); 
 
-    return Created("Creado Exitosamente", new
+    return Created("", new
     {
       UserId=newUser.Socio.UserId,
       Genero=newUser.Socio.Genero,

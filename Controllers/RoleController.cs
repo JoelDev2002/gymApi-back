@@ -51,7 +51,7 @@ public class RoleController : ControllerBase
     await _context.Roles.AddAsync(newRole);
     await _context.SaveChangesAsync();
 
-    return Created("creado Correctamente",newRole);
+    return Created("",newRole);
   }
 
   [Authorize(Roles ="ADMIN")]

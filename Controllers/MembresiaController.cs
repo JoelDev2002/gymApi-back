@@ -56,7 +56,7 @@ public class MembresiaController : ControllerBase
     await _context.SaveChangesAsync();
 
 
-    return Created("Membresia creada",new
+    return Created("",new
     {
       MembresiaId    =newMembresia.MembresiaId,
       Nombre         =newMembresia.Nombre,

@@ -148,7 +148,7 @@ public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntre
     await _context.SocioEntrenadors.AddAsync(newRelacion);
     await _context.SaveChangesAsync();
 
-    return CreatedAtAction(nameof(ObtenerRelacion), new { id = newRelacion.SocioEntrenadorId }, newRelacion);
+    return Created("", newRelacion);
 }
 
   [Authorize(Roles ="ADMIN")]

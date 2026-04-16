@@ -105,8 +105,7 @@ public class SocioMembresiaController : ControllerBase
         await _context.SocioMembresia.AddAsync(nuevaMembresia);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(ObtenerSocioMembresia),
-            new { id = nuevaMembresia.SocioMembresiaId }, new
+        return Created("", new
             {
                 nuevaMembresia.SocioMembresiaId,
                 nuevaMembresia.SocioId,

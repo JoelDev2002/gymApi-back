@@ -80,7 +80,7 @@ public class EntrenadoreController : ControllerBase
     await _context.AddAsync(newUser);
     await _context.SaveChangesAsync();
 
-    return Created("creado exitosamente", new
+    return Created("", new
     {
       UserId=newUser.UserId,
       Especialidad=newUser.Entrenadore.Especialidad,

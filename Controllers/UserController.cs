@@ -99,7 +99,7 @@ public class UserController : ControllerBase
     await _context.Users.AddAsync(newUser);
     await _context.SaveChangesAsync();
 
-    return Created("creado de manera existosa",new 
+    return Created("",new 
     {
         newUser.UserId,
         newUser.UserName,
