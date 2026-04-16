@@ -144,6 +144,7 @@ public class SocioController : ControllerBase
 
     return Created("", new
     {
+      SocioId=newUser.Socio.SocioId,
       UserId=newUser.Socio.UserId,
       Genero=newUser.Socio.Genero,
       AlturaCm=newUser.Socio.AlturaCm,

@@ -82,6 +82,7 @@ public class EntrenadoreController : ControllerBase
 
     return Created("", new
     {
+      EntrenadorId=newUser.Entrenadore.EntrenadorId,
       UserId=newUser.UserId,
       Especialidad=newUser.Entrenadore.Especialidad,
       Certificaciones=newUser.Entrenadore.Certificaciones,
@@ -100,7 +101,7 @@ public class EntrenadoreController : ControllerBase
 
     await _context.SaveChangesAsync();
 
-    return Created("creado exitosamente", new
+    return Ok(new
     {
       UserId=entrenadoreExiste.UserId,
       Especialidad=entrenadoreExiste.Especialidad,
