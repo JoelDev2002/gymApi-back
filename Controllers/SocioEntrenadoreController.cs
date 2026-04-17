@@ -164,7 +164,7 @@ public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntre
     var relacionExiste =await _context.SocioEntrenadors.FirstOrDefaultAsync(sE=>sE.SocioEntrenadorId==id);
     if(relacionExiste is null) return NotFound("relacion no existe");
 
-    var newRelacionExiste= await _context.SocioEntrenadors.AnyAsync(sE=>sE.EntrenadorId==actualizarSocioEntrenadorRequest.EntrenadorId && sE.SocioId ==actualizarSocioEntrenadorRequest.SocioId && sE.Activo &&sE.SocioEntrenadorId !=id);
+    var newRelacionExiste= await _context.SocioEntrenadors.AnyAsync(sE=>sE.EntrenadorId==actualizarSocioEntrenadorRequest.EntrenadorId && sE.SocioId ==actualizarSocioEntrenadorRequest.SocioId && sE.Activo && sE.SocioEntrenadorId !=id);
     if(newRelacionExiste) return Conflict("ya existe esta relacion entre socio y entrenador");
 
     relacionExiste.SocioId=actualizarSocioEntrenadorRequest.SocioId;

@@ -27,7 +27,7 @@ public class EntrenadoreController : ControllerBase
   [HttpGet("{id}")]
   public async Task<IActionResult> ObtenerEntrenadorPorId(int id)
   {
-    var entrenadorExiste= await _context.Entrenadores.FirstOrDefaultAsync(e=>e.UserId ==id);
+    var entrenadorExiste= await _context.Entrenadores.FirstOrDefaultAsync(e=>e.EntrenadorId ==id);
     if(entrenadorExiste is null) return NotFound("no se encontro al entrenador");
 
     return Ok(entrenadorExiste);
@@ -93,7 +93,7 @@ public class EntrenadoreController : ControllerBase
   [HttpPut("{id}")]
   public async Task<IActionResult> ActualizarEntrenador(int id, [FromBody]ActualizarEntrenadoreRequest actualizarEntrenadore)
   {
-    var entrenadoreExiste=await _context.Entrenadores.FirstOrDefaultAsync(e=>e.UserId ==id);
+    var entrenadoreExiste=await _context.Entrenadores.FirstOrDefaultAsync(e=>e.EntrenadorId ==id);
     if(entrenadoreExiste is null) return NotFound("entrenador no encontrado");
 
     entrenadoreExiste.Especialidad=actualizarEntrenadore.Especialidad;
@@ -103,6 +103,7 @@ public class EntrenadoreController : ControllerBase
 
     return Ok(new
     {
+      EntrenadorId=entrenadoreExiste.EntrenadorId,
       UserId=entrenadoreExiste.UserId,
       Especialidad=entrenadoreExiste.Especialidad,
       Certificaciones=entrenadoreExiste.Certificaciones,
