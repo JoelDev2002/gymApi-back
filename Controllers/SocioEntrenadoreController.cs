@@ -96,6 +96,8 @@ public async Task<IActionResult> ObtenerRelacionesEntrenador()
 
     var detalle =new
     {
+            SocioEntrenadorId= relacionExiste.SocioEntrenadorId,
+
             SocioId          = relacionExiste.SocioId,
             EntrenadorId     = relacionExiste.EntrenadorId,
             FechaAsignacion  = relacionExiste.FechaAsignacion,
@@ -148,7 +150,13 @@ public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntre
     await _context.SocioEntrenadors.AddAsync(newRelacion);
     await _context.SaveChangesAsync();
 
-    return Created("", newRelacion);
+    return Created("", new
+    {
+        SocioEntrenadorId =newRelacion.SocioEntrenadorId,
+        SocioId = newRelacion.SocioId,
+        EntrenadorId = newRelacion.EntrenadorId,
+        FechaAsignacion = newRelacion.FechaAsignacion
+    });
 }
 
   [Authorize(Roles ="ADMIN")]
@@ -174,8 +182,10 @@ public async Task<IActionResult> CrearSocioEntrenador([FromBody] CrearSocioEntre
 
     return Ok(new
     {
-      SocioId=relacionExiste.SocioId,
-      EntrenadorId=relacionExiste.EntrenadorId,
+      SocioEntrenadorId =relacionExiste.SocioEntrenadorId,
+      SocioId = relacionExiste.SocioId,
+      EntrenadorId = relacionExiste.EntrenadorId,
+      FechaAsignacion = relacionExiste.FechaAsignacion
     });
   }
 

@@ -35,10 +35,11 @@ public class RutinaController : ControllerBase
                                           Nombre=r.Entrenador.User.UserName
                                         },
                                         Nombre=r.Nombre,
+                                        Objetivo=r.Objetivo,
                                         FechaInicio=r.FechaInicio,
                                         FechaFin=r.FechaFin,
                                         Activa=r.Activa,
-                                      }).ToListAsync();
+                                        }).ToListAsync();
 
     return Ok(listaRutinas);
   }

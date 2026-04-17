@@ -133,7 +133,7 @@ public class UserController : ControllerBase
 
     userExiste.UpdatedAt=DateTime.Now;
     await _context.SaveChangesAsync();
-    return Ok("actualizado");
+    return Ok(userExiste);
   }
 
   [Authorize(Roles ="ADMIN")]

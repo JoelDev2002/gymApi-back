@@ -70,7 +70,7 @@ public class RoleController : ControllerBase
 
     await _context.SaveChangesAsync();
 
-    return Ok("actualizado correctamente");
+    return Ok(role);
   }
 
   [Authorize(Roles ="ADMIN")]

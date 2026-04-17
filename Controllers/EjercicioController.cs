@@ -75,7 +75,7 @@ public class EjercicioController : ControllerBase
   }
 
   [Authorize(Roles ="ADMIN")]
-  [HttpPut]
+  [HttpPut("{id}")]
   public async Task<IActionResult> ActualizarEjercicio(int id,[FromBody] ActualizarEjercicioRequest request)
   {
     var ejercicioExiste = await _context.Ejercicios.FirstOrDefaultAsync(e => e.EjercicioId == id);
@@ -91,7 +91,7 @@ public class EjercicioController : ControllerBase
 
     await _context.SaveChangesAsync();
 
-    return Ok("actualizado correctamente");
+    return Ok(ejercicioExiste);
   }
 
   [Authorize(Roles ="ADMIN")]

@@ -61,7 +61,7 @@ public class RutinaEjercicioController : ControllerBase
 
     await _context.SaveChangesAsync();
 
-    return Ok("Actualizado");
+    return Ok(rutinaEjercicio);
   }
 
   [Authorize(Roles ="ADMIN,ENTRENADOR")]

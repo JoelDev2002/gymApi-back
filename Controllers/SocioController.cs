@@ -80,6 +80,7 @@ public class SocioController : ControllerBase
     {
       TienePerfil=true,
       socioEncontrado.SocioId,
+      socioEncontrado.User.Email,
       socioEncontrado.User.UserName,
       socioEncontrado.PesoKg,
       socioEncontrado.AlturaCm,
@@ -146,6 +147,7 @@ public class SocioController : ControllerBase
     {
       SocioId=newUser.Socio.SocioId,
       UserId=newUser.Socio.UserId,
+      Email=newUser.Email,
       Genero=newUser.Socio.Genero,
       AlturaCm=newUser.Socio.AlturaCm,
       PesoKg=newUser.Socio.PesoKg,
@@ -157,7 +159,9 @@ public class SocioController : ControllerBase
   [HttpPut("{id}")]
   public async Task<IActionResult> EditarSocio(int id , [FromBody] EditarSocioRequest editarSocioRequest)
   {
-    var socioExiste=await _context.Socios.FirstOrDefaultAsync(s=>s.UserId==id);
+    var socioExiste=await _context.Socios
+                                  .Include(u => u.User)
+                                  .FirstOrDefaultAsync(s => s.SocioId == id);
 
     if(socioExiste is null) return NotFound("socio no existe,intente de nuevo");
 
@@ -170,7 +174,16 @@ public class SocioController : ControllerBase
 
     await _context.SaveChangesAsync();
 
-    return Ok("Actualizado correctamente");
+    return Ok(new
+    {
+      SocioId=socioExiste.SocioId,
+      UserId=socioExiste.UserId,
+      Email=socioExiste.User.Email,
+      Genero=socioExiste.Genero,
+      AlturaCm=socioExiste.AlturaCm,
+      PesoKg=socioExiste.PesoKg,
+      FechaNacimiento=socioExiste.FechaNacimiento,
+    });
   }
 
   [Authorize(Roles ="ADMIN")]
